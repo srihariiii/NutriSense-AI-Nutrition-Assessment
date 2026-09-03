@@ -53,8 +53,15 @@ async function request(path, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    const message = data.detail || "Something went wrong";
-    throw new Error(typeof message === "string" ? message : JSON.stringify(message));
+    let message = "Something went wrong";
+    if (typeof data.detail === "string") {
+      message = data.detail;
+    } else if (Array.isArray(data.detail) && data.detail.length > 0) {
+      message = data.detail.map((err) => err.msg || err.detail || JSON.stringify(err)).join("; ");
+    } else if (data.message) {
+      message = data.message;
+    }
+    throw new Error(message);
   }
 
   return data;
@@ -129,4 +136,47 @@ export function saveLabResults(payload) {
     body: JSON.stringify(payload),
   });
 }
+
+export function fetchAssessmentStatus() {
+  return request("/api/assess/status");
+}
+
+export function fetchLatestAssessment() {
+  return request("/api/assess/latest");
+}
+
+export function runAssessment() {
+  return request("/api/assess", {
+    method: "POST",
+  });
+}
+
+export function updateAccount(payload) {
+  return request("/api/user/account", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function fetchMealPlan() {
+  return request("/api/meal-plan");
+}
+
+export function regenerateMealPlan() {
+  return request("/api/meal-plan/generate", {
+    method: "POST",
+  });
+}
+
+export function fetchRecommendations(assessmentId) {
+  const query = assessmentId ? `?assessment_id=${assessmentId}` : "";
+  return request(`/api/recommendations${query}`);
+}
+
+export function fetchProgress() {
+  return request("/api/progress");
+}
+
+
+
 

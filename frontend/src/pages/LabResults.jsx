@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
 import { clearAuth, getUser, fetchLabResults, saveLabResults } from "../api/api";
 
 export default function LabResults() {
   const navigate = useNavigate();
-  const location = useLocation();
   const user = getUser();
 
   const [form, setForm] = useState({
@@ -61,7 +61,7 @@ export default function LabResults() {
       };
       await saveLabResults(payload);
       setStatusMsg("Lab results saved successfully!");
-      setTimeout(() => setStatusMsg(""), 3000);
+      setTimeout(() => setStatusMsg(""), 4000);
     } catch (err) {
       console.error(err);
       setStatusMsg("Failed to save lab results.");
@@ -75,127 +75,131 @@ export default function LabResults() {
     navigate("/login");
   };
 
-  const links = [
-    { to: "/dashboard", label: "Dashboard", icon: "📊" },
-    { to: "/food-diary", label: "Food diary", icon: "📝" },
-    { to: "/symptoms", label: "Symptoms", icon: "🩺" },
-    { to: "/lab-results", label: "Lab results", icon: "🔬" },
-    { to: "/assessment", label: "Assessment", icon: "📋" },
-    { to: "/meal-plan", label: "Meal plan", icon: "🍽️" },
-    { to: "/progress", label: "Progress", icon: "📈" },
-  ];
-
   return (
-    <div className="diary-layout">
-      {/* Sidebar */}
-      <aside className="diary-sidebar">
-        <div className="diary-brand">NutriSense</div>
-        <div className="sidebar-user">{user?.email}</div>
-
-        <nav className="sidebar-nav">
-          {links.map((l) => (
-            <Link key={l.to} to={l.to} className={location.pathname === l.to ? "active" : ""}>
-              <span className="nav-icon">{l.icon}</span> {l.label}
-            </Link>
-          ))}
-        </nav>
-
-        <button className="sidebar-logout" onClick={handleLogout}>Sign out</button>
-      </aside>
+    <div className="diary-layout lab-results-page-bg">
+      {/* Sidebar with Desktop Sticky & Mobile Drawer */}
+      <Sidebar user={user} onLogout={handleLogout} />
 
       {/* Main Content */}
-      <main className="diary-main lab-main-bg">
-        <div className="diary-page-header">
-          <h1>Lab results</h1>
+      <main className="diary-main lab-main-container">
+        <div className="lab-header-banner">
+          <div>
+            <h1 className="lab-page-title">Biomarker Lab Results</h1>
+            <p className="lab-page-subtitle">
+              Optional clinical biomarkers to recalibrate AI model risk sensitivity for Iron, Vitamin D, Vitamin B12, and Calcium.
+            </p>
+          </div>
+          <span className="lab-tech-chip">🔬 Clinical Calibration</span>
         </div>
 
-        <div className="lab-results-card">
-          <p className="lab-subtitle-note">
-            Optional — improves iron &amp; vitamin D confidence after ML prediction.
-          </p>
-
+        <div className="unique-lab-card">
           {statusMsg && (
-            <div className={`diary-status ${statusMsg.includes("success") ? "success" : ""}`}>
+            <div className={`lab-status-toast ${statusMsg.includes("success") ? "success" : "error"}`}>
+              {statusMsg.includes("success") ? "✅ " : "⚠️ "}
               {statusMsg}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="lab-form">
-            <div className="row-2">
-              {/* Left Column */}
-              <div className="lab-column">
-                <div className="form-group">
+          <form onSubmit={handleSubmit} className="unique-lab-form">
+            <div className="lab-inputs-grid">
+              {/* Hemoglobin */}
+              <div className="lab-input-card">
+                <div className="input-card-header">
+                  <span className="biomarker-icon">🩸</span>
                   <label htmlFor="hemoglobin">Hemoglobin (g/dL)</label>
-                  <input
-                    id="hemoglobin"
-                    name="hemoglobin"
-                    type="number"
-                    step="0.1"
-                    placeholder="Enter hemoglobin"
-                    value={form.hemoglobin}
-                    onChange={handleChange}
-                  />
                 </div>
-
-                <div className="form-group">
-                  <label htmlFor="ferritin">Ferritin</label>
-                  <input
-                    id="ferritin"
-                    name="ferritin"
-                    type="number"
-                    step="0.1"
-                    placeholder="Enter ferritin"
-                    value={form.ferritin}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="calcium">Calcium</label>
-                  <input
-                    id="calcium"
-                    name="calcium"
-                    type="number"
-                    step="0.1"
-                    placeholder="Enter calcium"
-                    value={form.calcium}
-                    onChange={handleChange}
-                  />
-                </div>
+                <input
+                  id="hemoglobin"
+                  name="hemoglobin"
+                  type="number"
+                  step="0.1"
+                  placeholder="Enter hemoglobin"
+                  value={form.hemoglobin}
+                  onChange={handleChange}
+                  className="unique-lab-input"
+                />
+                <span className="cutoff-hint">Ref Cutoff: F &lt; 12.0 · M &lt; 13.0 g/dL</span>
               </div>
 
-              {/* Right Column */}
-              <div className="lab-column">
-                <div className="form-group">
-                  <label htmlFor="serum_vitamin_d">Serum Vitamin D</label>
-                  <input
-                    id="serum_vitamin_d"
-                    name="serum_vitamin_d"
-                    type="number"
-                    step="0.1"
-                    placeholder="Enter serum vitamin D"
-                    value={form.serum_vitamin_d}
-                    onChange={handleChange}
-                  />
+              {/* Ferritin */}
+              <div className="lab-input-card">
+                <div className="input-card-header">
+                  <span className="biomarker-icon">🧪</span>
+                  <label htmlFor="ferritin">Ferritin (ng/mL)</label>
                 </div>
+                <input
+                  id="ferritin"
+                  name="ferritin"
+                  type="number"
+                  step="0.1"
+                  placeholder="Enter ferritin"
+                  value={form.ferritin}
+                  onChange={handleChange}
+                  className="unique-lab-input"
+                />
+                <span className="cutoff-hint">Ref Cutoff: &lt; 30.0 ng/mL</span>
+              </div>
 
-                <div className="form-group">
-                  <label htmlFor="vitamin_b12">Vitamin B12</label>
-                  <input
-                    id="vitamin_b12"
-                    name="vitamin_b12"
-                    type="number"
-                    step="0.1"
-                    placeholder="Enter vitamin B12"
-                    value={form.vitamin_b12}
-                    onChange={handleChange}
-                  />
+              {/* Serum Vitamin D */}
+              <div className="lab-input-card">
+                <div className="input-card-header">
+                  <span className="biomarker-icon">☀️</span>
+                  <label htmlFor="serum_vitamin_d">Serum Vitamin D (nmol/L)</label>
                 </div>
+                <input
+                  id="serum_vitamin_d"
+                  name="serum_vitamin_d"
+                  type="number"
+                  step="0.1"
+                  placeholder="Enter serum vitamin D"
+                  value={form.serum_vitamin_d}
+                  onChange={handleChange}
+                  className="unique-lab-input"
+                />
+                <span className="cutoff-hint">Ref Cutoff: &lt; 50.0 nmol/L</span>
+              </div>
+
+              {/* Vitamin B12 */}
+              <div className="lab-input-card">
+                <div className="input-card-header">
+                  <span className="biomarker-icon">💊</span>
+                  <label htmlFor="vitamin_b12">Vitamin B12 (pg/mL)</label>
+                </div>
+                <input
+                  id="vitamin_b12"
+                  name="vitamin_b12"
+                  type="number"
+                  step="0.1"
+                  placeholder="Enter vitamin B12"
+                  value={form.vitamin_b12}
+                  onChange={handleChange}
+                  className="unique-lab-input"
+                />
+                <span className="cutoff-hint">Ref Cutoff: &lt; 200.0 pg/mL</span>
+              </div>
+
+              {/* Calcium */}
+              <div className="lab-input-card wide">
+                <div className="input-card-header">
+                  <span className="biomarker-icon">🦴</span>
+                  <label htmlFor="calcium">Calcium (mg/dL)</label>
+                </div>
+                <input
+                  id="calcium"
+                  name="calcium"
+                  type="number"
+                  step="0.1"
+                  placeholder="Enter calcium"
+                  value={form.calcium}
+                  onChange={handleChange}
+                  className="unique-lab-input"
+                />
+                <span className="cutoff-hint">Ref Cutoff: &lt; 8.5 mg/dL</span>
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary lab-save-btn" disabled={loading}>
-              {loading ? "Saving..." : "Save labs"}
+            <button type="submit" className="save-lab-biomarkers-btn" disabled={loading}>
+              {loading ? "Saving Biomarkers..." : "Save Lab Biomarkers"}
             </button>
           </form>
         </div>

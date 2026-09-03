@@ -18,6 +18,7 @@ class User(Base):
 
     health_profile = relationship("HealthProfile", back_populates="user", uselist=False)
     lab_result = relationship("LabResult", back_populates="user", uselist=False)
+    assessments = relationship("Assessment", back_populates="user")
 
 
 class HealthProfile(Base):
@@ -109,12 +110,23 @@ class DiaryEntry(Base):
     food_item_id = Column(Integer, ForeignKey("food_items.id"), nullable=True)
     food_name = Column(String(500), nullable=False)
     portion_grams = Column(Float, nullable=False)
-    energy_kcal = Column(Float, default=0)
-    protein_g = Column(Float, default=0)
-    fat_g = Column(Float, default=0)
-    carb_g = Column(Float, default=0)
-    iron_mg = Column(Float, default=0)
+    calories_kcal = Column(Float, default=0.0)
+    protein_g = Column(Float, default=0.0)
+    iron_mg = Column(Float, default=0.0)
+    calcium_mg = Column(Float, default=0.0)
+    vitamin_d_mcg = Column(Float, default=0.0)
+    vitamin_b12_mcg = Column(Float, default=0.0)
+    folate_mcg = Column(Float, default=0.0)
+    vitamin_a_mcg = Column(Float, default=0.0)
+    vitamin_c_mg = Column(Float, default=0.0)
+    magnesium_mg = Column(Float, default=0.0)
+    zinc_mg = Column(Float, default=0.0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    @property
+    def energy_kcal(self) -> float:
+        return self.calories_kcal or 0.0
+
 
 
 class LabResult(Base):
@@ -135,4 +147,18 @@ class LabResult(Base):
     )
 
     user = relationship("User", back_populates="lab_result")
+
+
+class Assessment(Base):
+    __tablename__ = "assessments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    features_json = Column(Text, nullable=False)
+    risks_json = Column(Text, nullable=False)
+    wellness_score = Column(Float, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="assessments")
+
 

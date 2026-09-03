@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
 import { clearAuth, getUser, searchFoods, fetchDiaryEntries, addDiaryEntry, deleteDiaryEntry } from "../api/api";
 
 export default function FoodDiary() {
   const navigate = useNavigate();
-  const location = useLocation();
   const user = getUser();
 
   const [date, setDate] = useState("");
@@ -167,33 +167,10 @@ export default function FoodDiary() {
       })()
     : "—";
 
-  const links = [
-    { to: "/dashboard", label: "Dashboard", icon: "📊" },
-    { to: "/food-diary", label: "Food diary", icon: "📝" },
-    { to: "/symptoms", label: "Symptoms", icon: "🩺" },
-    { to: "/lab-results", label: "Lab results", icon: "🔬" },
-    { to: "/assessment", label: "Assessment", icon: "📋" },
-    { to: "/meal-plan", label: "Meal plan", icon: "🍽️" },
-    { to: "/progress", label: "Progress", icon: "📈" },
-  ];
-
   return (
     <div className="diary-layout">
-      {/* ── Sidebar ── */}
-      <aside className="diary-sidebar">
-        <div className="diary-brand">NutriSense</div>
-        <div className="sidebar-user">{user?.first_name} {user?.last_name}</div>
-
-        <nav className="sidebar-nav">
-          {links.map((l) => (
-            <Link key={l.to} to={l.to} className={location.pathname === l.to ? "active" : ""}>
-              <span className="nav-icon">{l.icon}</span> {l.label}
-            </Link>
-          ))}
-        </nav>
-
-        <button className="sidebar-logout" onClick={handleLogout}>Sign out</button>
-      </aside>
+      {/* Sidebar with Desktop Sticky & Mobile Drawer */}
+      <Sidebar user={user} onLogout={handleLogout} />
 
       {/* ── Main content ── */}
       <main className="diary-main diary-main-with-bg">

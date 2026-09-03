@@ -58,6 +58,15 @@ class UserLogin(BaseModel):
     password: str
 
 
+class UserAccountUpdate(BaseModel):
+    full_name: str = Field(..., min_length=1, max_length=200)
+    email: EmailStr
+    current_password: str | None = None
+    new_password: str | None = None
+    confirm_new_password: str | None = None
+
+
+
 class UserResponse(BaseModel):
     id: int
     first_name: str
@@ -104,15 +113,19 @@ class HealthProfileCreate(BaseModel):
             raise ValueError("Please enter your health goal")
         return value.strip()
 
-    @field_validator("dietary_restrictions")
+    @field_validator("dietary_restrictions", mode="before")
     @classmethod
-    def validate_restrictions(cls, value: list[str]) -> list[str]:
-        for item in value:
-            if item not in ALLOWED_RESTRICTIONS:
-                raise ValueError(f"Invalid dietary restriction: {item}")
-        if "None" in value and len(value) > 1:
-            raise ValueError("'None' cannot be combined with other restrictions")
-        return value
+    def validate_restrictions(cls, value: Any) -> list[str]:
+        if isinstance(value, str):
+            value = [value]
+        if not isinstance(value, list) or len(value) == 0:
+            value = ["None"]
+        cleaned = [str(item).strip() for item in value if str(item).strip()]
+        if not cleaned:
+            return ["None"]
+        if "None" in cleaned and len(cleaned) > 1:
+            cleaned = [item for item in cleaned if item != "None"]
+        return cleaned
 
 
 class HealthProfileResponse(BaseModel):
@@ -179,14 +192,25 @@ class DiaryEntryResponse(BaseModel):
     meal_type: str
     food_name: str
     portion_grams: float
-    energy_kcal: float
-    protein_g: float
-    fat_g: float
-    carb_g: float
-    iron_mg: float
+    calories_kcal: float = 0.0
+    protein_g: float = 0.0
+    iron_mg: float = 0.0
+    calcium_mg: float = 0.0
+    vitamin_d_mcg: float = 0.0
+    vitamin_b12_mcg: float = 0.0
+    folate_mcg: float = 0.0
+    vitamin_a_mcg: float = 0.0
+    vitamin_c_mg: float = 0.0
+    magnesium_mg: float = 0.0
+    zinc_mg: float = 0.0
+
+    @property
+    def energy_kcal(self) -> float:
+        return self.calories_kcal
 
     class Config:
         from_attributes = True
+
 
 
 class LabResultCreate(BaseModel):
@@ -208,4 +232,81 @@ class LabResultResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class AssessmentRiskItem(BaseModel):
+    label: str
+    nutrient_name: str
+    probability: float
+    percentage: int
+    level: str
+    tag: str
+    lab_boosted: bool = False
+    lab_notes: str | None = None
+
+
+class RecommendedFoodItem(BaseModel):
+    id: int
+    name: str
+    iron_mg: float = 0.0
+    calcium_mg: float = 0.0
+    protein_g: float = 0.0
+    vitamin_c_mg: float = 0.0
+    vitamin_d_mcg: float = 0.0
+    vitamin_b12_mcg: float = 0.0
+    target_val: float | None = None
+    target_display: str | None = None
+    tags: str | list[str] | None = ""
+
+
+class RecommendedGroup(BaseModel):
+    nutrient: str | None = None
+    nutrient_name: str
+    foods: list[Any]
+
+
+class AssessmentResponse(BaseModel):
+    id: int | None = None
+    wellness_score: float
+    distinct_days: int
+    consecutive_days: int
+    can_run_assessment: bool
+    risk_items: list[AssessmentRiskItem]
+    recommended_groups: list[RecommendedGroup]
+
+
+class MealItemResponse(BaseModel):
+    meal_type: str
+    food_title: str
+    target_summary: str
+
+
+class DayMealPlanResponse(BaseModel):
+    day_key: str
+    day_name: str
+    meals: list[MealItemResponse]
+
+
+class MealPlanResponse(BaseModel):
+    focus_nutrients: list[str]
+    dietary_restrictions: list[str]
+    days: list[DayMealPlanResponse]
+    created_at: str | None = None
+
+
+class ProgressAssessmentItem(BaseModel):
+    id: int
+    week_label: str
+    wellness_score: float
+    avg_risk: float
+    top_risks_summary: str
+    created_at: str | None = None
+
+
+class ProgressResponse(BaseModel):
+    history: list[ProgressAssessmentItem]
+    current_wellness_score: float
+    current_avg_risk: float
+
+
 
