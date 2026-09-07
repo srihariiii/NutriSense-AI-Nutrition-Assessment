@@ -14,13 +14,13 @@ const DEFAULT_RISKS = [
   { label: "label_calcium", nutrient_name: "Calcium", percentage: 95, level: "HIGH", tag: "Low calcium intake" },
   { label: "label_vitamin_b12", nutrient_name: "Vitamin B12", percentage: 94, level: "HIGH", tag: "Low B12 intake" },
   { label: "label_vitamin_a", nutrient_name: "Vitamin A", percentage: 92, level: "HIGH", tag: "Low vitamin A intake" },
-  { label: "label_vitamin_d", nutrient_name: "Vitamin D", percentage: 43, level: "MODERATE", tag: "Low vitamin D intake" },
-  { label: "label_iron", nutrient_name: "Iron", percentage: 17, level: "LOW", tag: "Low iron intake" },
-  { label: "label_zinc", nutrient_name: "Zinc", percentage: 9, level: "LOW", tag: "Low zinc intake" },
-  { label: "label_protein", nutrient_name: "Protein", percentage: 8, level: "LOW", tag: "Low protein intake" },
-  { label: "label_vitamin_c", nutrient_name: "Vitamin C", percentage: 4, level: "LOW", tag: "Low vitamin C intake" },
-  { label: "label_folate", nutrient_name: "Folate", percentage: 4, level: "LOW", tag: "Low folate intake" },
-  { label: "label_magnesium", nutrient_name: "Magnesium", percentage: 4, level: "LOW", tag: "Low magnesium intake" },
+  { label: "label_vitamin_d", nutrient_name: "Vitamin D", percentage: 43, level: "MODERATE", tag: "Moderate vitamin D intake" },
+  { label: "label_iron", nutrient_name: "Iron", percentage: 17, level: "LOW", tag: "Adequate iron intake" },
+  { label: "label_zinc", nutrient_name: "Zinc", percentage: 9, level: "LOW", tag: "Adequate zinc intake" },
+  { label: "label_protein", nutrient_name: "Protein", percentage: 8, level: "LOW", tag: "Adequate protein intake" },
+  { label: "label_vitamin_c", nutrient_name: "Vitamin C", percentage: 4, level: "LOW", tag: "Adequate vitamin C intake" },
+  { label: "label_folate", nutrient_name: "Folate", percentage: 4, level: "LOW", tag: "Adequate folate intake" },
+  { label: "label_magnesium", nutrient_name: "Magnesium", percentage: 4, level: "LOW", tag: "Adequate magnesium intake" },
 ];
 
 export default function Dashboard() {
@@ -134,7 +134,13 @@ export default function Dashboard() {
                 const pct = typeof item.percentage === "number" ? item.percentage : 0;
                 const lvl = (item.level || (pct > 65 ? "HIGH" : pct >= 35 ? "MODERATE" : "LOW")).toLowerCase();
                 const nutName = item.nutrient_name || item.label?.replace("label_", "").toUpperCase() || "Nutrient";
-                const tagText = item.tag || `Low ${nutName.toLowerCase()} intake`;
+                const tagText = lvl === "low"
+                  ? `Adequate ${nutName.toLowerCase()} intake`
+                  : lvl === "moderate"
+                  ? `Moderate ${nutName.toLowerCase()} intake`
+                  : (item.tag && item.tag.toLowerCase().includes("low"))
+                  ? item.tag
+                  : `Low ${nutName.toLowerCase()} intake`;
 
                 return (
                   <div key={item.label || nutName} className={`unique-risk-card ${lvl}`}>

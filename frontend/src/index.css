@@ -350,6 +350,47 @@ body {
   padding-right: 2.5rem;
 }
 
+/* ── Password Visibility Toggle ── */
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 2.75rem !important;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6a7c73;
+  transition: color 0.2s, transform 0.15s;
+  font-size: 1.1rem;
+  z-index: 2;
+  border-radius: 6px;
+}
+
+.password-toggle-btn:hover {
+  color: var(--green-900);
+}
+
+.password-toggle-btn:focus {
+  outline: none;
+  color: var(--green-800);
+}
+
 .hint {
   font-size: 0.78rem;
   color: var(--text-muted);

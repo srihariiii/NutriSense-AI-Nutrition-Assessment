@@ -549,19 +549,16 @@ def run_assessment_for_user(
     for label in sorted_labels:
         prob = probs_dict[label]
         pct = int(round(prob * 100))
-
+        nut_name = LABEL_DISPLAY_NAMES.get(label, label)
         if pct > 65:
             level = "HIGH"
+            tag = f"Low {nut_name.lower()} intake"
         elif pct >= 35:
             level = "MODERATE"
+            tag = f"Moderate {nut_name.lower()} intake"
         else:
             level = "LOW"
-
-        nut_name = LABEL_DISPLAY_NAMES.get(label, label)
-        thresh, default_tag = RDA_THRESHOLDS.get(
-            label, (0.0, f"Low {nut_name.lower()} intake")
-        )
-        tag = default_tag
+            tag = f"Adequate {nut_name.lower()} intake"
 
         is_boosted = label in boosted_labels
         boost_note = boosted_labels.get(label, None)

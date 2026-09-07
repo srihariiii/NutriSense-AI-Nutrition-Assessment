@@ -449,6 +449,15 @@ def get_latest_assessment(
         }
 
     risk_items = json.loads(latest.risks_json) if latest.risks_json else []
+    for item in risk_items:
+        lvl = (item.get("level") or "").upper()
+        nut = item.get("nutrient_name") or item.get("label", "").replace("label_", "").title()
+        if lvl == "LOW":
+            item["tag"] = f"Adequate {nut.lower()} intake"
+        elif lvl == "MODERATE":
+            item["tag"] = f"Moderate {nut.lower()} intake"
+        elif lvl == "HIGH":
+            item["tag"] = f"Low {nut.lower()} intake"
 
     profile = db.query(HealthProfile).filter(HealthProfile.user_id == current_user.id).first()
     user_restrictions = []

@@ -157,32 +157,44 @@ export default function AssessmentPage() {
                   </div>
                 ) : (
                   <div className="unique-risk-grid">
-                    {assessmentData.risk_items.map((item) => (
-                      <div key={item.label} className={`unique-risk-card ${item.level.toLowerCase()}`}>
-                        <div className="risk-card-top">
-                          <span className="risk-card-name">{item.nutrient_name}</span>
-                          <span className={`risk-badge-tag ${item.level.toLowerCase()}`}>
-                            {item.percentage}% {item.level}
-                          </span>
-                        </div>
+                    {assessmentData.risk_items.map((item) => {
+                      const lvl = (item.level || "").toLowerCase();
+                      const nutName = item.nutrient_name || item.label;
+                      const tagText = lvl === "low"
+                        ? `Adequate ${nutName.toLowerCase()} intake`
+                        : lvl === "moderate"
+                        ? `Moderate ${nutName.toLowerCase()} intake`
+                        : (item.tag && item.tag.toLowerCase().includes("low"))
+                        ? item.tag
+                        : `Low ${nutName.toLowerCase()} intake`;
 
-                        <div className="risk-meter-track">
-                          <div
-                            className={`risk-meter-fill ${item.level.toLowerCase()}`}
-                            style={{ width: `${Math.max(6, item.percentage)}%` }}
-                          ></div>
-                        </div>
-
-                        <div className="risk-card-bottom">
-                          <span className="rda-tag">{item.tag}</span>
-                          {item.lab_boosted && (
-                            <span className="lab-boost-badge">
-                              🔬 {item.lab_notes || "Lab Boosted"}
+                      return (
+                        <div key={item.label} className={`unique-risk-card ${lvl}`}>
+                          <div className="risk-card-top">
+                            <span className="risk-card-name">{item.nutrient_name}</span>
+                            <span className={`risk-badge-tag ${lvl}`}>
+                              {item.percentage}% {item.level}
                             </span>
-                          )}
+                          </div>
+
+                          <div className="risk-meter-track">
+                            <div
+                              className={`risk-meter-fill ${lvl}`}
+                              style={{ width: `${Math.max(6, item.percentage)}%` }}
+                            ></div>
+                          </div>
+
+                          <div className="risk-card-bottom">
+                            <span className="rda-tag">{tagText}</span>
+                            {item.lab_boosted && (
+                              <span className="lab-boost-badge">
+                                🔬 {item.lab_notes || "Lab Boosted"}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
